@@ -110,6 +110,14 @@ $(document).ready(function(){
 		$("#acknowledgeModal").modal('toggle');
 	});
 
+	$('#answer_edit_save').click(function(e)
+	{
+		e.preventDefault();
+		saveAnswer();
+		$("#answerModal").modal('toggle');
+	});
+	
+	
 	$('#menu_edit_faq').tooltip();
 	$('#menu_code_faq').tooltip();
 	$('#menu_export_faq').tooltip();
