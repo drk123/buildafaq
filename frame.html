@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!--
+ ========================================================================
+ * buildafaq: frame.html v0.0.1
+ * ========================================================================
+ * Copyright 2014 Dave Klein
+ * Licensed under Apache License 2.0 
+ *              (https://github.com/drk123/buildafaq/blob/master/LICENSE)
+ * ======================================================================== 
+-->
+  <meta charset="utf-8">
+  <meta name="google" value="notranslate">
+  <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Build-a-Faq</title>
+   <script type="text/javascript" src="blockly_compressed.js"></script>
+  <script type="text/javascript" src="field_textareainput.js"></script>
+  <script type="text/javascript" src="blocks_compressed.js"></script>
+  <script type="text/javascript" src="javascript_compressed.js"></script>
+  <script type="text/javascript" src="./msg/js/en.js"></script> 
+  
+  <style>
+      html, body {
+        background-color: #fff;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        height: 100%;
+      }
+      .blocklySvg {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+	
+ <xml id="toolbox" style="display: none">
+ <category name="faq">
+      <block type="faq"></block>
+      <block type="faq_question"></block>
+      <block type="faq_link"></block>
+</category>
+<category name="questions">
+      <block type="question"></block>
+      <block type="multiple_choice"></block>
+      <block type="choice"></block>
+</category>
+<category name="answers">
+      <block type="answer"></block>
+      <block type="answer_link"></block>
+      <block type="question_link"></block>
+</category>
+  </xml>  
+ <xml id="toolbox_new" style="display: none">
+<category name="questions">
+      <block type="question_multiple"></block>
+      <block type="question_single"></block>
+      <block type="question_link"></block>
+</category>
+<category name="answers">
+      <block type="answer"></block>
+      <block type="answer_link"></block>
+      <block type="answer_question"></block>
+</category>
+  </xml>  
+</head>
+<body>
+  <script type="text/javascript" src="blocks.js"></script>
+  <script type="text/javascript" src="faq.js"></script>
+  <script type="text/javascript">
+    Blockly.inject(document.body, {path: './', toolbox: document.getElementById('toolbox_new') , trashcan: true});
+	window.parent.blocklyLoaded(Blockly, FAQ);
+  </script>
+ </body>
+</html>
