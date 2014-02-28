@@ -30,7 +30,7 @@ FAQ.convertToHTML = function()
 	html += '<html>\n';
 	html += '<head>\n';
 	html += '  <meta charset="utf-8">\n';
-	html += '  <meta name="generator" value="Build-a-FAQ by Dave Klein v0.1">\n';
+	html += '  <meta name="generator" value="Build-a-FAQ by Dave Klein v0.1 https://github.com/drk123/buildafaq">\n';
 	html += '  <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1.0, user-scalable=no">\n';
 	html += '	<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">\n';
 	html += '	<link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">\n';

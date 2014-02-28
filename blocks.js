@@ -30,12 +30,13 @@ function AAAValidateId(id)
 }
 
 Blockly.FAQ = {};
-Blockly.FAQ.faqConnectors = ["question_multiple", "question_single", "question", "question_link"];
+Blockly.FAQ.faqConnectors = ["question_multiple", "question_single", "question_link"];
+Blockly.FAQ.helpLink = 'https://drk123.github.io/buildafaq/help.html';
 
 Blockly.Blocks['question_multiple'] = {
   init: function() {
 	this.defaultValues = { title: "title" };
-    this.setHelpUrl('http://www.example.com/');
+    this.setHelpUrl(Blockly.FAQ.helpLink + "#question_multiple");
     this.setColour(360);
     this.appendDummyInput()
         .appendField("multiple");
@@ -54,36 +55,10 @@ Blockly.Blocks['question_multiple'] = {
   }
 };
 
-Blockly.Blocks['question'] = {
-  init: function() {
-	this.defaultValues = { question: "a yes or no question" };
-    this.setHelpUrl('http://www.example.com/');
-    this.setColour(340);
-    this.appendDummyInput()
-        .appendField("yes/no");
-    this.appendDummyInput()
-        .appendField("id")
-        .appendField(new Blockly.FieldTextInput(AAANextId(this, "q"), AAAValidateId), "id");
-    this.appendDummyInput()
-        .appendField("question")
-        .appendField(new Blockly.FieldTextInput(this.defaultValues['question']), "the_question");
-    this.appendValueInput("yes_answer")
-        .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("yes");
-    this.appendValueInput("no_answer")
-        .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("no");
-    this.setPreviousStatement(true, Blockly.FAQ.faqConnectors);
-    this.setNextStatement(true, Blockly.FAQ.faqConnectors);
-    this.setTooltip('');
-	
-  }
-};
-
 Blockly.Blocks['question_single'] = {
   init: function() {
 	this.defaultValues = { title: "title" };
-    this.setHelpUrl('http://www.example.com/');
+    this.setHelpUrl(Blockly.FAQ.helpLink + "#question_single");
     this.setColour(320);
     this.appendDummyInput()
         .appendField("single");
@@ -106,7 +81,7 @@ Blockly.Blocks['question_single'] = {
 Blockly.Blocks['question_link'] = {
   init: function() {
 	this.defaultValues = { id: "id" };
-    this.setHelpUrl('http://www.example.com/');
+    this.setHelpUrl(Blockly.FAQ.helpLink + "#question_link");
     this.setColour(300);
     this.appendDummyInput()
         .appendField("link to a question");
@@ -126,7 +101,7 @@ Blockly.Blocks['question_link'] = {
 Blockly.Blocks['answer'] = {
   init: function() {
   	this.defaultValues = { answer: "an answer" };
-    this.setHelpUrl('http://www.example.com/');
+    this.setHelpUrl(Blockly.FAQ.helpLink + "#answer");
     this.setColour(160);
     this.appendDummyInput()
         .appendField("answer")
@@ -141,7 +116,7 @@ Blockly.Blocks['answer_link'] = {
   init: function() {
   	this.defaultValues = { answer_url: "http://example.com", title: "title" };
 
-    this.setHelpUrl('http://www.example.com/');
+    this.setHelpUrl(Blockly.FAQ.helpLink + "#answer_link");
     this.setColour(140);
     this.appendDummyInput()
         .appendField("link to web page");
@@ -159,7 +134,7 @@ Blockly.Blocks['answer_link'] = {
 
 Blockly.Blocks['answer_question'] = {
   init: function() {
-    this.setHelpUrl('http://www.example.com/');
+    this.setHelpUrl(Blockly.FAQ.helpLink + "#answer_question");
     this.setColour(120);
     this.appendDummyInput()
         .appendField("more questions");

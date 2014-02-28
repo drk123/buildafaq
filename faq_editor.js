@@ -98,11 +98,25 @@ $(document).ready(function(){
 		FAQ_EDITOR.export();
 	});
 
+	$('#menu_help').click(function(e)
+	{
+		e.preventDefault();
+		window.open("./help.html");
+	});
+
+	$('#acknowledge').click(function(e)
+	{
+		e.preventDefault();
+		$("#acknowledgeModal").modal('toggle');
+	});
+
 	$('#menu_edit_faq').tooltip();
 	$('#menu_code_faq').tooltip();
 	$('#menu_export_faq').tooltip();
 	$('#menu_import_faq').tooltip();
 	$('#menu_test_faq').tooltip();
+	$('#menu_help').tooltip();
+	$('#gitlink').tooltip();
 
 
 	// answer modal stuff
