@@ -14,11 +14,11 @@
   <meta name="google" value="notranslate">
   <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Build-a-Faq</title>
-   <script type="text/javascript" src="blockly_compressed.js"></script>
+   <script type="text/javascript" src="./third_party/blockly_compressed.js"></script>
   <script type="text/javascript" src="field_textareainput.js"></script>
-  <script type="text/javascript" src="blocks_compressed.js"></script>
-  <script type="text/javascript" src="javascript_compressed.js"></script>
-  <script type="text/javascript" src="./msg/js/en.js"></script> 
+  <script type="text/javascript" src="./third_party/blocks_compressed.js"></script>
+  <script type="text/javascript" src="./third_party/javascript_compressed.js"></script>
+  <script type="text/javascript" src="./third_party/msg/js/en.js"></script> 
   
   <style>
       html, body {
@@ -68,7 +68,7 @@
   <script type="text/javascript" src="blocks.js"></script>
   <script type="text/javascript" src="faq.js"></script>
   <script type="text/javascript">
-    Blockly.inject(document.body, {path: './', toolbox: document.getElementById('toolbox_new') , trashcan: true});
+    Blockly.inject(document.body, {path: './third_party/', toolbox: document.getElementById('toolbox_new') , trashcan: true});
 	window.parent.blocklyLoaded(Blockly, FAQ);
   </script>
  </body>
