@@ -142,7 +142,10 @@
 			  <li id="menu_test_item" ><a href="#test_pane" id="menu_test_faq" title="Test" data-toggle="tooltip" data-placement="bottom" ><i class="fa fa-play fa-lg"></i></a></li>
 			  <li id="menu_test_item" ><a href="#code_pane" id="menu_code_faq" title="View HTML" data-toggle="tooltip" data-placement="bottom" ><i class="fa fa-code fa-lg"></i></a></li>
 		  </ul>
-        </div><!--/.navbar-collapse -->
+ 		  <ul class="nav navbar-nav navbar-right">
+			  <li><a href="#help" data-toggle="tooltip" id="menu_help"  data-toggle="tooltip" data-placement="bottom" title="Help" ><i class="fa fa-question fa-lg"></i></a></li>
+		  </ul>
+       </div><!--/.navbar-collapse -->
       </div>
     </div>
    <div class="container-fluid">
@@ -181,7 +184,8 @@
     </div> <!-- container -->	
     <div id="footer">
       <div class="container-fluid">
-        <span class="pull-right">Copyright &copy; 2014 Dave Klein.  All Rights Reserved.</span>
+	    <span class="pull-left"><a href="#" id="acknowledge">Acknowledgements</a></span>
+        <span class="pull-right">Copyright &copy; 2014 Dave Klein.  All Rights Reserved.&nbsp;&nbsp;&nbsp;<a href="https://github.com/drk123/buildafaq" title="Check us out on GitHub" data-toggle="tooltip" data-placement="top" id="gitlink"><i class="fa fa-github"></i></a></span>
       </div>
     </div>
 
@@ -223,6 +227,34 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<div class="modal fade" id="acknowledgeModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Acknowledgements</h4>
+      </div>
+      <div class="modal-body">
+	  <p>This app is possible due to the many open source resources available.</p>
+	  <p>Resources we use:</p>
+	  <ul>
+	       <li><a href="http://code.google.com/p/blockly/">Blockly - a visual programming editor</a></li>
+	       <li><a href="http://jquery.com">jQuery - write less, do more.</a></li>
+	       <li><a href="http://getbootstrap.com">Bootstrap</a></li>
+	       <li><a href="http://ace.c9.io">Ace - the High Performance Code Editor for the Web</a></li>
+	       <li><a href="http://www.tinymce.com">tinymce - Javascript WYSIWYG Editor</a></li>
+	       <li><a href="https://github.com/douglascrockford/JSON-js">json2 - JSON in JavaScript</a></li>
+	       <li><a href="http://fontawesome.io/">Font Awesome - the iconic font designed for Bootstrap</a></li>
+	       <li><a href="https://github.com/eligrey/FileSaver.js/">FileSaver.js - An HTML5 saveAs() FileSaver implementation</a></li>
+	       <li><a href="http://www.jstorage.info/">jStorage - store data locally with JavaScript</a></li>
+	  </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 	<script src="./third_party/FileSaver.js"></script>	
 	<script src="//cdnjs.cloudflare.com/ajax/libs/json2/20130526/json2.min.js"></script>

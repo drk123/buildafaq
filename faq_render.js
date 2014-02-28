@@ -16,54 +16,6 @@ FAQ.MaxRenderDepth = 16;
 
 FAQ.ItemIds = 0;
 
-FAQ.AnswerManager = function()
-{
-   this.arrAnswers = [];
-   this.eventHandlers = {};
-   
-   this.addEventHandler = function(name, handler)
-   {
-     this.eventHandlers[name] = handler;
-   };
-
-   this.dropEventHandler = function(name)
-   {
-     delete this.eventHandlers[name];
-   };
-   
-   this.clear = function()
-   {
-     this.arrAnswers = [];
-	 this.fireEvent('Clear');
-   };
-   
-   this.addAnswer = function(item, answer)
-   {
-      this.arrAnswers.push({ item: item, answer: answer});
-	  this.fireEvent('AddAnswer');
-   };
-
-   this.dropAnswer = function()
-   {
-      this.arrAnswers.pop();
-	  this.fireEvent('DropAnswer');
-   };
-   
-   this.fireEvent = function(eventName)
-   {
-      var eventMethod = 'on' + eventName;
-	  for (var name in this.eventHandlers)
-	  {
-	     var handler = this.eventHandlers[name];
-		 if (typeof handler[eventMethod] !== 'undefined')
-		 {
-		    handler[eventMethod](this.arrAnswers);
-		 }
-	  }
-   }
-   
-};
-
 
 FAQ.htmlEscape =function(str) {
 	return String(str)
@@ -79,7 +31,6 @@ FAQ.addQuestion = function(id, question)
 {
 	this.TopItems[id] = question;
 	this.eval(question);
-	this.Items[id].Answers = new FAQ.AnswerManager();
 };
 
 FAQ.loadQuestion = function(id)
