@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!--
+ ========================================================================
+ * buildafaq: help.html v0.0.1
+ * ========================================================================
+ * Copyright 2014 Dave Klein
+ * Licensed under Apache License 2.0 
+ *              (https://github.com/drk123/buildafaq/blob/master/LICENSE)
+ * ======================================================================== 
+-->
+
+
+  <meta charset="utf-8">
+  <meta name="google" value="notranslate">
+  <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Build-a-Faq Help</title>
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+	<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+	<style>
+		body { margin-top: 50px; 
+		      overflow-x: hidden;
+		}	
+		
+		/* Sticky footer styles
+		-------------------------------------------------- */
+		html {
+		  position: relative;
+		  min-height: 100%;
+		}
+		body {
+		  /* Margin bottom by footer height */
+		  margin-bottom: 30px;
+		}
+		#footer {
+		  position: absolute;
+		  bottom: 0;
+		  width: 100%;
+		  /* Set the fixed height of the footer here */
+		  height: 30px;
+		  background-color: #222;
+		  color: #ddd;
+       }		
+	   
+	</style>
+
+
+     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="./index.html">FAQ</a>
+        </div>
+      </div>
+    </div>
+   <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-12" id="main_column">
+		<h1>Help for buildafaq</h1>
+		<p>Help is a little sparse right now.  We hope to add more soon.</p>
+<p>An HTML5 App using <a href="https://code.google.com/p/blockly/">Blockly</a> and <a href="http://getbootstrap.com">Bootstrap</a> to create multiple level FAQs. 
+Check out the <a href="https://drk123.github.io/buildafaq/index.html">demo.</a></p>
+
+<p><strong>buildafaq</strong> is intended to be an easy-to-use faq generator.  Build multi-level question sets by linking together blocks.  There are three types of questions and three types of answers.</p>
+
+<h2>Questions</h2>
+
+<p><strong>Multiple choice</strong> - a question with one or more nested questions. 
+<img src="./images/question_multiple.png" alt="A multiple choice question">
+</p>
+<p><strong>Single</strong> - a question with a single answer.
+<img src="./images/question_single.png" alt="A single question">
+</p>
+<p><strong>Link</strong> - a link to another question
+<img src="./images/question_link.png" alt="A link to a question">
+</p>
+ 
+<h2>Answers</h2>
+<p><strong>Simple</strong> - a rich text answer with the ability to embed images and videos.
+<img src="./images/answer.png" alt="A simple answer">
+</p>
+<p><strong>Link</strong> - a link to another web page
+<img src="./images/answer_link.png" alt="A link to another web page">
+</p>
+<p><strong>Nested</strong> - an answer with nested questions.
+<img src="./images/answer_question.png" alt="A nested answer">
+</p>
+
+<h2>Getting Started</h2>
+<p>Connect questions and answers together to build a nested faq. Below is a simple example.</p>
+<img src="./images/example_faq.png" alt="A nested answer">
+
+		</div> <!-- col -->
+	  </div> <!-- row -->
+    </div> <!-- container -->	
+    <div id="footer">
+      <div class="container-fluid">
+        <span class="pull-right">Copyright &copy; 2014 Dave Klein.  All Rights Reserved.&nbsp;&nbsp;&nbsp;<a href="https://github.com/drk123/buildafaq" title="Check us out on GitHub" data-toggle="tooltip" data-placement="top" id="gitlink"><i class="fa fa-github"></i></a></span>
+      </div>
+    </div>
+
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/json2/20130526/json2.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>	
+ </body>
+</html>
