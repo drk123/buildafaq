@@ -43,7 +43,7 @@ FAQ.convertToHTML = function()
 	html += '	<script type="text/javascript">\n';
 	html += '        FAQ.clearRender();\n';
 	html += '        ' + conversion.code + '\n';
-	html += '        FAQ.renderCode("#faq_content");\n';
+	html += '        FAQ.renderCode("#faq_content", new FAQ.Renderer());\n';
 	html += '	</script>\n';
 	html += '</body>\n';
 	conversion.code = html;
