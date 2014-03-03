@@ -219,8 +219,9 @@ FAQ_EDITOR.export = function()
 		textType = "text/xml";  
 		fileName = "faq_blocks.xml";
 	} else {
-		var conversion = editFAQ.convertToHTML();
-		docText = conversion.code;
+		//var conversion = editFAQ.convertToHTML();
+		//docText = conversion.code;
+		docText = FAQ_EDITOR.editor.getValue();
 		textType = "text/html";
 		fileName = "faq_page.html";
 	}
@@ -240,7 +241,8 @@ FAQ_EDITOR.test = function()
 		$('#menu_edit_faq').tab('show');
 	} else {
 		FAQ.clearRender();
-		FAQ.renderCode("#test_content", conversion.code);
+		var renderer = new FAQ.Renderer();
+		FAQ.renderCode("#test_content", renderer, conversion.code);
 
 		$('#menu_test_faq').tab('show');
 	}

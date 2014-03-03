@@ -7,15 +7,6 @@
  * ======================================================================== */
 
 var FAQ = FAQ || {};
-FAQ.TopItems = {};
-FAQ.Items = {};
-FAQ.ItemsByRef = {};
-FAQ.ItemObjs = {};
-FAQ.ItemStacks = {};
-FAQ.MaxRenderDepth = 16;
-
-FAQ.ItemIds = 0;
-
 
 FAQ.htmlEscape =function(str) {
 	return String(str)
@@ -26,11 +17,10 @@ FAQ.htmlEscape =function(str) {
 		.replace(/>/g, '&gt;');
 };
 
-
 FAQ.addQuestion = function(id, question)
 {
-	this.TopItems[id] = question;
-	this.eval(question);
+	FAQ.TopItems[id] = question;
+	FAQ.eval(question);
 };
 
 FAQ.loadQuestion = function(id)
@@ -39,288 +29,419 @@ FAQ.loadQuestion = function(id)
 
 FAQ.clearRender = function()
 {
-	this.TopItems = {};
-	this.Items = {};
-	this.ItemsByRef = {};
-	this.ItemObjs = {};
-	this.ItemStacks = {};
+	FAQ.TopItems = {};
+	FAQ.Items = {};
+	FAQ.ItemsByRef = {};
 }
 
-FAQ.renderCode = function(renderDivId, code, id)
+
+FAQ.TopItems = {};
+FAQ.Items = {};
+FAQ.ItemsByRef = {};
+FAQ.MaxRenderDepth = 16;
+
+FAQ.ItemIds = 0;
+
+FAQ.renderIdCount = 0;
+FAQ.nextRenderId = function()
 {
-	this.RenderDivId = renderDivId;
+   return "REND" + FAQ.renderIdCount++;
+};
+
+// for now, only 1 render manager
+FAQ.renderCode = function(renderDivId, renderer, code, id)
+{
+	FAQ.RenderDivId = renderDivId;
 	if (typeof code !== 'undefined')
 	{
 	   eval(code);
 	}
 
-	var renderHTML = '';
+	FAQ.renderManager = new FAQ.RenderManager(renderer, renderDivId);
+	renderer.setRenderManager(FAQ.renderManager);
+	
 	if (typeof id === 'undefined')
 	{
-		this.renderTopItems(this.TopItems);
+		FAQ.renderManager.renderTopItems(this.TopItems);
 	} else {
 		var item = FAQ.Items[id];
-		this.renderTopItems([ item ]);
+		FAQ.renderManager.renderTopItems([ item ]);
 	}
 
 };
 
-FAQ.renderIdCount = 0;
-FAQ.nextRenderId = function()
+FAQ.Renderer = function()
 {
-   return "REND" + this.renderIdCount++;
+   this.topId = "";
+   this.TopconvertItems = {};
 };
 
-FAQ.renderTopItems = function(topItems)
+FAQ.RenderIdCount = 0;
+FAQ.Renderer.prototype.nextRenderId = function()
 {
+   return "REND" + FAQ.RenderIdCount++;
+};
+
+
+FAQ.Renderer.prototype.renderContainer = function(renderDivId)
+{
+    this.renderDivId = renderDivId;
 	var renderHTML = '';
-	// render all the high-level stuff
-	var topId = this.nextRenderId();
-	var firstOne = true;
-	renderHTML += '<div class="panel-group" id="' + topId + '">';
-	this.TopRenderItems = {};
-	for (var itemId in topItems)
-	{
-		var item = this.Items[itemId];
-		var id = this.nextRenderId();
-		var titleId = this.nextRenderId();
-		var title = item.title || item.q || '+' ;
-		var topItemId = this.nextRenderId();
-		this.ItemStacks[topItemId] = [];
-		
-		renderHTML += '  <div class="panel panel-default faq_top" id="' + topItemId + '">';
-		renderHTML += '    <div class="panel-heading">';
-		renderHTML += '      <h4 class="panel-title">';
-		renderHTML += '<a href="#" title="Go Back" class="faq_go_back" style="visibility:hidden;"><i class="fa fa-arrow-left"></i></a>&nbsp;&nbsp;';
-		renderHTML += '        <a data-toggle="collapse" data-parent="#' + topId + '" href="#' + id + '" id="' + titleId + '" style="font-size: 1.1em;">';
-		renderHTML += this.htmlEscape(title);
-		renderHTML += '        </a>';
-		renderHTML += '<span class="pull-right"><a href="#" title="Show Answers" class="faq_show_answers"><i class="fa fa-caret-down"></i></a></span>';
-		renderHTML += '<span class="pull-right" style="display:none;"><a href="#" title="Hide Answers" class="faq_hide_answers"><i class="fa fa-caret-up"></i></a></span>';
-		renderHTML += '      </h4>';
-		renderHTML += '    </div>';
-		renderHTML += '    <div id="' + id + '" class="panel-collapse collapse' + (firstOne ? ' in' : '') + '">';
-		renderHTML += '      <div class="panel-body faq_panel_body">';
-		
-		renderHTML += '      <div class="faq_panel_prev" style="display:none;">';
-		renderHTML += '      </div>';
-		
-		renderHTML += '      <div class="faq_panel_qbody">';
-        var itemObj = this.renderItem(item, this.ItemStacks[topItemId], titleId);		
-		this.TopRenderItems[titleId] = itemObj;
-		itemObj.itemStack.push(itemObj);
-		renderHTML += this.renderBody(itemObj);
-		renderHTML += '      </div></div>';
-		renderHTML += '    </div>';
-		renderHTML += '  </div>';
 
-		firstOne = false;
-	}
+	this.topId = FAQ.nextRenderId();
+	renderHTML += '<div class="panel-group" id="' + this.topId + '">';
 	renderHTML += '</div>';
-	$(this.RenderDivId).html(renderHTML);
-	$('#' + topId + ' .faq_show_answers').click(function(e) {
+
+	$(this.renderDivId).html(renderHTML);
+};
+
+FAQ.Renderer.prototype.addTopItem = function(isExpanded)
+{
+   isExpanded = isExpanded || true;
+   
+   var topItemId = FAQ.nextRenderId();
+   var id = FAQ.nextRenderId();
+   var titleId = FAQ.nextRenderId();
+   
+   var renderHTML = '';
+	renderHTML += '  <div class="panel panel-default faq_top" id="' + topItemId + '">';
+	renderHTML += '    <div class="panel-heading">';
+	renderHTML += '      <h4 class="panel-title">';
+	renderHTML += '<a href="#" title="Go Back" class="faq_go_back" style="visibility:hidden;"><i class="fa fa-arrow-left"></i></a>&nbsp;&nbsp;';
+	renderHTML += '        <a data-toggle="collapse" data-parent="#' + this.topId + '" href="#' + id + '" id="' + titleId + '" style="font-size: 1.1em;" class="faq_top_item_title">';
+	renderHTML += '        </a>';
+	renderHTML += '<span class="pull-right"><a href="#" title="Show Answers" class="faq_show_answers"><i class="fa fa-caret-down"></i></a></span>';
+	renderHTML += '<span class="pull-right" style="display:none;"><a href="#" title="Hide Answers" class="faq_hide_answers"><i class="fa fa-caret-up"></i></a></span>';
+	renderHTML += '      </h4>';
+	renderHTML += '    </div>';
+	renderHTML += '    <div id="' + id + '" class="panel-collapse collapse' + (isExpanded ? ' in' : '') + '">';
+	renderHTML += '      <div class="panel-body faq_panel_body">';
+	
+	renderHTML += '      <div class="faq_panel_prev">';
+	renderHTML += '      </div>';
+	
+	renderHTML += '      <div class="faq_panel_qbody">';
+	renderHTML += '      </div></div>';
+	renderHTML += '    </div>';
+	renderHTML += '  </div>';
+	
+	$("#" + this.topId).append(renderHTML);
+	
+	$('#' + topItemId + ' .faq_show_answers').click(function(e) {
 	   e.preventDefault();
 	   $(this).parents('.faq_top').find('.faq_panel_prev').css('display', 'inline');
 	   $(this).parents('.faq_top').find('.faq_show_answers').parent().css('display', 'none');
 	   $(this).parents('.faq_top').find('.faq_hide_answers').parent().css('display', 'inline');
 	});
-	$('#' + topId + ' .faq_hide_answers').click(function(e) {
+	$('#' + topItemId + ' .faq_hide_answers').click(function(e) {
 	   e.preventDefault();
 	   $(this).parents('.faq_top').find('.faq_panel_prev').css('display', 'none');
 	   $(this).parents('.faq_top').find('.faq_show_answers').parent().css('display', 'inline');
 	   $(this).parents('.faq_top').find('.faq_hide_answers').parent().css('display', 'none');
 	});
-	$('#' + topId + ' .faq_go_back').click(function(e) {
+
+	var renderer = this;
+	$('#' + topItemId + ' .faq_go_back').click(function(e) {
 	   e.preventDefault();
-	   var stackId = $(this).parents('.faq_top').attr('id');
-	   FAQ.goBack(stackId);
+	   var topItemId = $(this).parents('.faq_top').attr('id');
+	   renderer.goBack(topItemId);
 	});
+	
+	return topItemId;
 };
 
-FAQ.goBack = function(stackId)
+FAQ.Renderer.prototype.setRenderManager = function(renderManager)
 {
-   var itemStack = this.ItemStacks[stackId];
-   var childItemObj = itemStack.pop();
-   var parentItemObj = itemStack.pop();
-   var panelBody = $('#' + stackId + ' .faq_panel_body');
-   
-   if (this.ItemStacks[stackId].length === 0)
-   {
-		itemStack.push(parentItemObj);
-		$('#' + stackId + ' .faq_go_back').css('visibility', 'hidden');
-		var title = parentItemObj.title  ;
-   	    var titleEl = $('#' + parentItemObj.renderId);
-        titleEl.html(this.htmlEscape(title));
-		var bodyHTML = this.renderBody(parentItemObj);
-		panelBody.find('.faq_panel_qbody').html(bodyHTML);
-   } else {
-	   // remove stuff
-	   var pItem = $('#' + stackId + ' .faq_panel_body .faq_panel_prev .faq_prev_item').last();
-	   pItem.remove();
-	   
-	   // re-render
-	   var grandParentItemObj = itemStack.pop();
-	   itemStack.push(grandParentItemObj);
-	   this.addAnswer(grandParentItemObj.renderId, parentItemObj.renderId,  $('#' + stackId + ' .faq_panel_body .faq_panel_prev'));
-   }
+   this.renderManager = renderManager;
 };
 
-FAQ.addAnswer = function(parentRenderId, childRenderId, el)
+FAQ.Renderer.prototype.showBackArrow = function(topItemId, show)
 {
-   var parentItemObj = this.ItemObjs[parentRenderId];
-   var itemObj = this.ItemObjs[childRenderId];
+	$('#' + topItemId + ' .faq_go_back').css('visibility', (show ? 'visible' : 'hidden'));
+  
+};
 
-   parentItemObj.itemStack.push(itemObj);
-   if (parentItemObj.itemStack.length >= 2)
-   {
-	  el.parents('.faq_top').find('.faq_go_back').css('visibility', 'visible');
-   }
-   
-   
-   var panelBody = el.parents('.faq_panel_body');
-   panelBody.find('.faq_panel_qbody').html('');
-   
-   var isTop = (typeof this.TopRenderItems[parentRenderId] !== 'undefined' ? true : false);
-   var bodyHTML = '';
-   
-   if (isTop) {
-   	   var titleEl = $('#' + parentItemObj.renderId);
-       titleEl.html(this.htmlEscape(parentItemObj.title));
-   } else {
-	   if (typeof parentItemObj.title !== 'undefined' && parentItemObj.title !== '')
-	   {
-		  var renderHTML = '';
-		  renderHTML += FAQ.renderTitle({renderId: ''}, parentItemObj, false);
-		  
-		  if (itemObj.isTerminal !== true)
-		  {
-			var panel_prev = panelBody.find('.faq_panel_prev');
-			panel_prev.append(renderHTML);
-		  } else {
-		     bodyHTML = renderHTML;
-		  }
-	   }
-   }
-   
-   if (typeof itemObj !== 'undefined' && itemObj !== null)
-   {
-	   if (typeof itemObj.title !== 'undefined' && itemObj.title !== '')
-	   {
-	        bodyHTML += FAQ.renderTitle(parentItemObj, itemObj, false);
-		}
-		bodyHTML += this.renderBody(itemObj);
+FAQ.Renderer.prototype.replaceAnswer=function(topItemId, html)
+{
+   var el = $('#' + topItemId + ' .faq_panel_qbody');
+   el.html(html);
+};
 
-	  panelBody.find('.faq_panel_qbody').html(bodyHTML);
-   } else {
-      panelBody.find('.faq_panel_qbody').html('err');
-   }
-}
+FAQ.Renderer.prototype.replaceTopTitle = function(topItemId, title)
+{
+   var el = $('#' + topItemId + ' .faq_top_item_title');
+   el.html(FAQ.htmlEscape(title));
+};
 
-FAQ.renderTitle = function(parentObj, childObj, linkTitle)
+FAQ.Renderer.prototype.goBack = function(topItemId)
+{
+   this.renderManager.goBack(topItemId);
+};
+
+FAQ.Renderer.prototype.renderTitle = function(title, link)
 {
 	var renderHTML = '';
-    var title = childObj.title;
 	if (typeof title !== 'undefined' && title !== '')
 	{
-		var styleBit =  ' style="margin: 2px;background:#eee;"'; // grrrr
 		renderHTML += '<div class="container-fluid">';
-		renderHTML += '<div class="row"><div class="col-sm-12"' + (linkTitle ? '' : styleBit) + '><h4 id="' + childObj.renderId + '">';
-		if (linkTitle) renderHTML += '<a href="#" onclick="FAQ.addAnswer(\'' + parentObj.renderId + '\',\'' + childObj.renderId + '\', $(this)); return false;">' ;
-		renderHTML += this.htmlEscape(childObj.title);
-		if (linkTitle) renderHTML += '</a>';
+		renderHTML += '<div class="row"><div class="col-sm-12"><h4>';
+		if (link) renderHTML += '<a href="' + link + '">'; ;
+		renderHTML += FAQ.htmlEscape(title);
+		if (link) renderHTML += '</a>';
 		renderHTML += '</h4></div></div></div>';
 	}
 	
 	return renderHTML;
 };
 
-FAQ.renderBody = function(itemObj, depth)
+FAQ.Renderer.prototype.renderBody = function(bodyHTML)
 {
-   if (typeof itemObj === 'undefined' || itemObj == null) return;
-   if (typeof depth === 'undefined') 
-   {
-      depth = 0;
-   }
-   
-   if (depth > this.MaxRenderDepth) return; // we're probably in a loop
-   
    var renderHTML = '';
-   if (typeof itemObj.body !== 'undefined')
+   if (typeof bodyHTML !== 'undefined' && bodyHTML != '')
    {
-      renderHTML += itemObj.body;
+		renderHTML += '<div class="container-fluid">';
+		renderHTML += '<div class="row"><div class="col-sm-12">';
+		renderHTML += bodyHTML;
+		renderHTML += '</div></div></div>';
    }
-   
-   if (typeof itemObj.children !== 'undefined')
-   {
-      var isSingle = (itemObj.children.length === 1 && depth == 0 ? true : false);
-	  var doBody;
-      for (var i = 0; i < itemObj.children.length; i++)
-	  {
-	     doBody = isSingle;
-	     var child = itemObj.children[i];
-		 var childObj = this.renderItem(child, itemObj.itemStack);
-		 if (typeof childObj.title !== 'undefined' && childObj.title.trim() != '')
-		 {
-		    renderHTML += FAQ.renderTitle(itemObj, childObj, !doBody);
-		 }  else {
-		    doBody = true;
-		 }
-		 
-		 if (doBody)
-		 {
-			 if (typeof childObj.body !== 'undefined') {
-				renderHTML += childObj.body;
-			 } else if (typeof childObj.children !== 'undefined') {
-				for (var j = 0; j < childObj.children.length; j++)
-				{
-				   var grandChild = childObj.children[j];
-				   var grandChildObj = this.renderItem(grandChild, itemObj.itemStack);
-
-				   if (typeof grandChildObj.body !== 'undefined') {
-						renderHTML += grandChildObj.body;
- 				   } else  {
-					   renderHTML += FAQ.renderTitle(childObj, grandChildObj, true);
-					}
-				}
-			 }
-		}
-		 
-	  }
-   }
+ 
    return renderHTML;
 };
 
 
-FAQ.stringifySingle = function(str)
+FAQ.Renderer.prototype.addTitleToPrevious = function(topItemId, title)
 {
-	var jstr = str.replace('"', '\\\"');
-	var jstr = str.replace("'", '\\\'');
-	return "'" + jstr + "'";
+   var renderHTML = '';
+   title = title || '';
+   if (title !== '')
+   {
+	  var styleBit =  ' style="margin: 2px;background:#eee;"'; // grrrr, needs to be in css
+	  renderHTML += '<div class="container-fluid faq_prev_item">';
+	  renderHTML += '<div class="row"><div class="col-sm-12"' +  styleBit + '><h4>';
+	  renderHTML += FAQ.htmlEscape(title);
+	  renderHTML += '</h4></div></div></div>';
+		
+  } else {
+	  renderHTML += '<div class="faq_prev_item" style="display:none;"></div>';
+  }
+  var el = $('#' + topItemId + ' .faq_panel_body .faq_panel_prev');
+  el.append(renderHTML);
+};
+
+FAQ.Renderer.prototype.dropTitleFromPrevious = function(topItemId)
+{
+	var pItem = $('#' + topItemId + ' .faq_panel_body .faq_panel_prev .faq_prev_item').last();
+	pItem.remove();
 };
 
 
-FAQ.renderItem = function(item, itemStack, optRenderId)
+FAQ.RenderManager = function(renderer, renderDiv)
 {
-   var itemObj = { item : item, renderId : (typeof optRenderId === 'undefined' ? this.nextRenderId() : optRenderId), isTerminal: false, itemStack: itemStack };
-   var bodyHTML = '';
+   this.maxDepth = 16;
+   this.ItemStacks = {};
+   this.TopItemStacks = {};
+   this.renderer = renderer;
+   this.renderDiv = renderDiv;
+   this.ItemObjs = {};
+   this.TopItems = {};
+   this.TopContainers = {};
+};
 
+FAQ.RenderManager.prototype.renderTopItems = function(topItems)
+{
+    this.renderer.renderContainer(this.renderDiv);
+	var renderHTML = '';
+	// render all the high-level stuff
+	var firstOne = true;
+	for (var itemId in topItems)
+	{
+	    var topItemId = this.renderer.addTopItem(firstOne);
+	    this.TopContainers[itemId] = topItemId;
+		this.ItemStacks[topItemId] = [];
+		this.TopItemStacks[topItemId] = [];
+		var itemObj = this.convertItem(FAQ.Items[itemId], topItemId);
+		this.TopItems[itemObj.renderId] = itemObj.renderId;
+		var renderHTML = this.renderItem(itemObj, 0);
+		this.renderer.replaceAnswer(topItemId, renderHTML);
+		firstOne = false;
+	}
+};
+
+FAQ.RenderManager.prototype.goBack = function(topItemId)
+{
+   var itemStack = this.ItemStacks[topItemId];
+   var topItemStack = this.TopItemStacks[topItemId];
+   topItemStack.pop();
+   var lastTopItemId = topItemStack[topItemStack.length-1].renderId;
+
+   var off = itemStack.length-1;
+   while (off >= 0 && itemStack[off].renderId !== lastTopItemId)
+   {
+	 var prevItemObj = itemStack.pop();
+	 if (prevItemObj.inPrevStack === true)
+	 {
+		this.renderer.dropTitleFromPrevious(topItemId);
+		prevItemObj.inPrevStack = false;
+	 }
+     off--;
+   }
+   
+   prevItemObj = itemStack.pop();
+   if (prevItemObj.inPrevStack === true)
+   {
+		this.renderer.dropTitleFromPrevious(topItemId);
+		prevItemObj.inPrevStack = false;
+   }
+   
+   var itemObj = topItemStack.pop();
+   this.renderer.showBackArrow(topItemId, topItemStack.length > 0);
+   var renderHTML = this.renderItem(itemObj, 0);
+   this.renderer.replaceAnswer(topItemId, renderHTML);
+	 
+   
+};
+
+FAQ.RenderManager.prototype.addAnswer = function(renderId)
+{
+   var itemObj = this.ItemObjs[renderId];
+   if (typeof itemObj !== 'undefined')
+   {
+      var topItemId = itemObj.topItemId;
+      this.renderer.showBackArrow(topItemId, true);
+      var itemStack = this.ItemStacks[topItemId];
+      var topItemStack = this.TopItemStacks[topItemId];
+	  var lastTopItemId = topItemStack[topItemStack.length-1].renderId;
+	  for (var i = 0; i < itemStack.length; i++)
+	  {
+	     if (itemStack[i].renderId === lastTopItemId)
+		 {
+		    //i++;
+			break;
+		 }
+	  }
+	  
+	  // add in prev stuff
+	  while (i < itemStack.length)
+	  {
+	     var prevItemObj = itemStack[i++];
+		 prevItemObj.inPrevStack = true;
+		 if (!this.isTopItem(prevItemObj))
+		 {
+		    this.renderer.addTitleToPrevious(prevItemObj.topItemId, prevItemObj.title);
+		 } else {
+		    this.renderer.addTitleToPrevious(prevItemObj.topItemId, '');
+		 }
+	  }
+	  
+	  var renderHTML = this.renderItem(itemObj, 0);
+	  this.renderer.replaceAnswer(topItemId, renderHTML);
+   }
+
+}
+
+
+FAQ.RenderManager.prototype.renderItem = function(itemObj, depth)
+{
+   depth = depth || 0;
+   
+   if (depth > this.maxDepth) return '';
+   if (typeof itemObj === 'undefined') return '';
+   
+   if (depth === 0)
+   {
+      this.TopItemStacks[itemObj.topItemId].push(itemObj);
+   }
+   this.ItemStacks[itemObj.topItemId].push(itemObj);
+   
+   var renderHTML = '';
+   renderHTML += this.renderTitle(itemObj, depth);
+   renderHTML += this.renderBody(itemObj, depth);
+   
+   
+   return renderHTML;
+};
+
+FAQ.RenderManager.prototype.isTopItem = function(itemObj)
+{
+   var isTop = false;
+   
+   if (this.TopItems[itemObj.renderId])
+   {
+      isTop = true;
+   }
+   
+   return isTop;
+};
+
+FAQ.RenderManager.prototype.renderTitle = function(itemObj, depth)
+{
+   var title = itemObj.title;
+   var renderHTML = '';
+   if (this.isTopItem(itemObj)) {
+      title = title || '+';
+	  this.renderer.replaceTopTitle(itemObj.topItemId, title);
+   } else {
+      renderHTML += this.renderer.renderTitle(title);
+   }   
+   
+   return renderHTML;
+};
+
+FAQ.RenderManager.prototype.renderBody = function(itemObj, depth)
+{
+   var renderHTML = '';
+   
+   if (typeof itemObj.body !== 'undefined' && itemObj.body != '')
+   {
+      renderHTML += this.renderer.renderBody(itemObj.body);
+   }
+   
+   renderHTML += this.renderChildren(itemObj, depth);
+   
+   return renderHTML;
+};
+
+FAQ.RenderManager.prototype.renderChildren = function(itemObj, depth)
+{
+   var renderHTML = '';
+   
+   var children = itemObj.children || [];
+   if (children.length > 0)
+   {
+      if (children.length == 1) {
+		var child = children[0];
+		var childObj = this.convertItem(child, itemObj.topItemId);
+	    renderHTML += this.renderItem(childObj, depth+1);
+	  } else {
+	     for (var i = 0; i < children.length; i++)
+		 {
+		    var child = children[i];
+			var childObj = this.convertItem(child, itemObj.topItemId);
+			var title = child.title || '';
+			if (title === '') {
+			   renderHTML += this.renderItem(childObj, depth+1);
+			} else {
+			   var theLink = "javascript:FAQ.renderManager.addAnswer('" + childObj.renderId + "');";
+			   renderHTML += this.renderer.renderTitle(title, theLink);
+			}
+		 }
+	  }
+   }
+   
+   return renderHTML;
+};
+
+FAQ.RenderManager.prototype.convertItem = function(item, topItemId)
+{
+   var itemObj = { item : item, 
+                   renderId :FAQ.nextRenderId(),
+				   topItemId : topItemId
+				 };
 	if (typeof item !== 'undefined' )
 	{
-	    FAQ.ItemObjs[itemObj.renderId] = itemObj;
+	    this.ItemObjs[itemObj.renderId] = itemObj;
 		try {
-
-			if (item.type === 'question') {
-			    itemObj.title = item.q;
-				bodyHTML += '<div class="container-fluid">';
-				bodyHTML += '<div class="row">';
-				bodyHTML += '  <div class="col-sm-12"><button type="button" class="btn btn-success" onclick="FAQ.addAnswer(' + item._refId + ',' + item.y._refId + 
-					', $(this), ' + this.stringifySingle("YES") + ');return false;">Yes</button>';
-				bodyHTML += '  <button type="button" class="btn btn-danger" onclick="FAQ.addAnswer(' + item._refId + ',' + item.n._refId + 
-					', $(this),' + this.stringifySingle("NO") +'); return false;">No</button></div>';
-				bodyHTML += '</div>';
-				bodyHTML += '</div>';
-				itemObj.body = bodyHTML;
-			} else if (item.type === 'question_multiple') {
+			if (item.type === 'question_multiple') {
 			    itemObj.title = item.title;
 				itemObj.children = [];
 				for (var fq = 0; fq < item.questions.length; fq++)
@@ -336,30 +457,21 @@ FAQ.renderItem = function(item, itemStack, optRenderId)
 				itemObj.children = [];
 				itemObj.children.push(this.followQuestionLink(qId));
 			} else if (item.type === 'answer') {
-			    
-				bodyHTML += '<div class="container-fluid">';
-				bodyHTML += '<div class="row"><div class="col-sm-12">';
-				bodyHTML += item.a;
-				bodyHTML += '</div></div></div>';
-				itemObj.body = bodyHTML;
-				itemObj.isTerminal = true;
+				itemObj.body = item.a;
 			} else if (item.type === 'answer_question') {
 				itemObj.children = [];
+				itemObj.useParent = true;
 				for (var aq = 0; aq < item.questions.length; aq++)
 				{
 					itemObj.children.push(item.questions[aq]) ;
 				}
 			} else if (item.type === 'answer_link') {
-				bodyHTML += '<div class="container-fluid">';
-				bodyHTML += '<div class="row"><div class="col-sm-12">';
+			    var bodyHTML = '';
 				bodyHTML += '<a href="' + item.url + '">';
-				bodyHTML += this.htmlEscape(item.title);
-				bodyHTML += '</div></div></div>';
+				bodyHTML += this.htmlEscape(item.title) || '+';
+				bodyHTML += '</a>';
 				itemObj.body = bodyHTML;
-				itemObj.isTerminal = true;
 			}
-
-
 		} catch (e) {
 			console.log(e);
 		}
