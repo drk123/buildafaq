@@ -110,8 +110,8 @@ FAQ.Renderer.prototype.addTopItem = function(isExpanded)
 	renderHTML += '<a href="#" title="Go Back" class="faq_go_back" style="visibility:hidden;"><i class="fa fa-arrow-left"></i></a>&nbsp;&nbsp;';
 	renderHTML += '        <a data-toggle="collapse" data-parent="#' + this.topId + '" href="#' + id + '" id="' + titleId + '" style="font-size: 1.1em;" class="faq_top_item_title">';
 	renderHTML += '        </a>';
-	renderHTML += '<span class="pull-right"><a href="#" title="Show Answers" class="faq_show_answers"><i class="fa fa-caret-down"></i></a></span>';
-	renderHTML += '<span class="pull-right" style="display:none;"><a href="#" title="Hide Answers" class="faq_hide_answers"><i class="fa fa-caret-up"></i></a></span>';
+	renderHTML += '<span class="pull-right" style="display:none;"><a href="#" title="Show Answers" class="faq_show_answers"><i class="fa fa-caret-down"></i></a></span>';
+	renderHTML += '<span class="pull-right"><a href="#" title="Hide Answers" class="faq_hide_answers"><i class="fa fa-caret-up"></i></a></span>';
 	renderHTML += '      </h4>';
 	renderHTML += '    </div>';
 	renderHTML += '    <div id="' + id + '" class="panel-collapse collapse' + (isExpanded ? ' in' : '') + '">';
@@ -455,7 +455,7 @@ FAQ.RenderManager.prototype.convertItem = function(item, topItemId)
 			} else if (item.type === 'question_link') {
 				var qId = item.qid;
 				itemObj.children = [];
-				itemObj.children.push(this.followQuestionLink(qId));
+				itemObj.children.push(FAQ.followQuestionLink(qId));
 			} else if (item.type === 'answer') {
 				itemObj.body = item.a;
 			} else if (item.type === 'answer_question') {
