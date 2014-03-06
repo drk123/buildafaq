@@ -6,25 +6,32 @@
  *              (https://github.com/drk123/buildafaq/blob/master/LICENSE)
  * ======================================================================== */
 
-var AAACount = {};
+var AAAIds = {};
+var AAACount = 0;
 function AAANextId(block, prefix)
 {
-  if (!AAACount[prefix]) {
-	 AAACount[prefix] = 1;
+  var alreadyThere = true;
+  var id;
+  var count = AAACount;
+  while (alreadyThere)
+  {
+     count++;
+	 id = prefix + count;
+	 alreadyThere = AAAIds[id];
   }
-  
-  var id =  prefix + AAACount[prefix];
-  if (!block.workspace.isFlyout) AAACount[prefix]++;
+  if (!block.workspace.isFlyout) 
+  {
+    AAAIds[id] = id;
+    AAACount = count;
+  }
+
   return id;
 }
 
 function AAAValidateId(id)
 {
 	var newId = id.trim().replace(/\//g, "");
-	if (newId !== id)
-	{
-	   var a = 10;
-	}
+	AAAIds[newId] = newId;
 	
 	return newId;
 }
@@ -68,6 +75,9 @@ Blockly.Blocks['question_single'] = {
     this.appendDummyInput()
         .appendField("title")
         .appendField(new Blockly.FieldTextInput(this.defaultValues['title']), "title");
+    this.appendDummyInput()
+        .appendField("append answer?")
+        .appendField(new Blockly.FieldCheckbox("FALSE"), "append");
     this.appendValueInput("the_answer")
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("answer");
@@ -131,6 +141,30 @@ Blockly.Blocks['answer_link'] = {
     this.setTooltip('');
   }
 };
+
+
+Blockly.Blocks['answer_iframe'] = {
+  init: function() {
+  	this.defaultValues = { answer_url: "http://example.com", title: "title", frame_width: "100%", frame_height: "400px" };
+
+    this.setHelpUrl(Blockly.FAQ.helpLink + "#answer_iframe");
+    this.setColour(140);
+    this.appendDummyInput()
+        .appendField("embedded answer");
+    this.appendDummyInput()
+        .appendField("url")
+        .appendField(new Blockly.FieldTextInput(this.defaultValues['answer_url']), "answer_url");
+    this.appendDummyInput()
+        .appendField("frame width")
+        .appendField(new Blockly.FieldTextInput(this.defaultValues['frame_width']), "frame_width");
+    this.appendDummyInput()
+        .appendField("frame height")
+        .appendField(new Blockly.FieldTextInput(this.defaultValues['frame_height']), "frame_height");
+    this.setOutput(true, 'answer');
+    this.setTooltip('');
+  }
+};
+
 
 Blockly.Blocks['answer_question'] = {
   init: function() {
