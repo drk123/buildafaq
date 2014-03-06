@@ -173,6 +173,33 @@ FAQ.Renderer.prototype.replaceTopTitle = function(topItemId, title)
    el.html(FAQ.htmlEscape(title));
 };
 
+FAQ.Renderer.prototype.appendPrevTitle = function(topItemId, title)
+{
+  title = title || '';
+  if (title != '')
+  {
+     title = ' - ' + FAQ.htmlEscape(title);
+  }
+  
+  var el = $('#' + topItemId + ' .faq_panel_body .faq_panel_prev .faq_prev_item').last().find('.faq_prev_item_title');
+  if (el.length == 0) {
+    // top title
+	el =  $('#' + topItemId + ' .faq_top_item_title');
+  } 
+  
+  title = title || '';
+  var new_html = '<span class="faq_prev_item_title_orig">' + el.html() + '</span>' + title;
+  el.html(new_html);
+	  
+};
+
+FAQ.Renderer.prototype.removeAppendPrevTitle = function(topItemId)
+{
+  var el = $('#' + topItemId + ' .faq_panel_body .faq_panel_prev .faq_prev_item').last().find('.faq_prev_item_title');
+  var orig_title_el = el.find('.faq_prev_item_title_orig');
+  el.html(orig_title_el.html());
+};
+
 FAQ.Renderer.prototype.goBack = function(topItemId)
 {
    this.renderManager.goBack(topItemId);
@@ -217,7 +244,7 @@ FAQ.Renderer.prototype.addTitleToPrevious = function(topItemId, title)
    {
 	  var styleBit =  ' style="margin: 2px;background:#eee;"'; // grrrr, needs to be in css
 	  renderHTML += '<div class="container-fluid faq_prev_item">';
-	  renderHTML += '<div class="row"><div class="col-sm-12"' +  styleBit + '><h4>';
+	  renderHTML += '<div class="row"><div class="col-sm-12"' +  styleBit + '><h4 class="faq_prev_item_title">';
 	  renderHTML += FAQ.htmlEscape(title);
 	  renderHTML += '</h4></div></div></div>';
 		
@@ -271,7 +298,7 @@ FAQ.RenderManager.prototype.goBack = function(topItemId)
 {
    var itemStack = this.ItemStacks[topItemId];
    var topItemStack = this.TopItemStacks[topItemId];
-   topItemStack.pop();
+   var droppedTopObj = topItemStack.pop();
    var lastTopItemId = topItemStack[topItemStack.length-1].renderId;
 
    var off = itemStack.length-1;
@@ -291,6 +318,11 @@ FAQ.RenderManager.prototype.goBack = function(topItemId)
    {
 		this.renderer.dropTitleFromPrevious(topItemId);
 		prevItemObj.inPrevStack = false;
+   }
+   
+   if (droppedTopObj.appendToParent)
+   {
+     this.renderer.removeAppendPrevTitle(topItemId);
    }
    
    var itemObj = topItemStack.pop();
@@ -327,7 +359,7 @@ FAQ.RenderManager.prototype.addAnswer = function(renderId)
 		 prevItemObj.inPrevStack = true;
 		 if (!this.isTopItem(prevItemObj))
 		 {
-		    this.renderer.addTitleToPrevious(prevItemObj.topItemId, prevItemObj.title);
+		    this.renderer.addTitleToPrevious(prevItemObj.topItemId, prevItemObj.appendToParent ? '' : prevItemObj.title);
 		 } else {
 		    this.renderer.addTitleToPrevious(prevItemObj.topItemId, '');
 		 }
@@ -381,7 +413,12 @@ FAQ.RenderManager.prototype.renderTitle = function(itemObj, depth)
       title = title || '+';
 	  this.renderer.replaceTopTitle(itemObj.topItemId, title);
    } else {
-      renderHTML += this.renderer.renderTitle(title);
+      if (itemObj.appendToParent) {
+	     // add title to parent title
+		  this.renderer.appendPrevTitle(itemObj.topItemId, title);
+	  } else {
+         renderHTML += this.renderer.renderTitle(title);
+	  }
    }   
    
    return renderHTML;
@@ -417,12 +454,15 @@ FAQ.RenderManager.prototype.renderChildren = function(itemObj, depth)
 		 {
 		    var child = children[i];
 			var childObj = this.convertItem(child, itemObj.topItemId);
-			var title = child.title || '';
-			if (title === '') {
-			   renderHTML += this.renderItem(childObj, depth+1);
-			} else {
-			   var theLink = "javascript:FAQ.renderManager.addAnswer('" + childObj.renderId + "');";
-			   renderHTML += this.renderer.renderTitle(title, theLink);
+			if (typeof childObj !== 'undefined' && childObj !== null)
+			{
+				var title = childObj.title || '';
+				if (title === '') {
+				   renderHTML += this.renderItem(childObj, depth+1);
+				} else {
+				   var theLink = "javascript:FAQ.renderManager.addAnswer('" + childObj.renderId + "');";
+				   renderHTML += this.renderer.renderTitle(title, theLink);
+				}
 			}
 		 }
 	  }
@@ -435,7 +475,8 @@ FAQ.RenderManager.prototype.convertItem = function(item, topItemId)
 {
    var itemObj = { item : item, 
                    renderId :FAQ.nextRenderId(),
-				   topItemId : topItemId
+				   topItemId : topItemId,
+				   appendToParent : false
 				 };
 	if (typeof item !== 'undefined' )
 	{
@@ -450,17 +491,23 @@ FAQ.RenderManager.prototype.convertItem = function(item, topItemId)
 				}
 			} else if (item.type === 'question_single') {
 			    itemObj.title = item.title;
+				itemObj.appendToParent = item.append;
 				itemObj.children = [];
 				itemObj.children.push(item.answer);
 			} else if (item.type === 'question_link') {
 				var qId = item.qid;
-				itemObj.children = [];
-				itemObj.children.push(FAQ.followQuestionLink(qId));
+				var refItem = FAQ.followQuestionLink(qId);
+				if (typeof refItem !== 'undefined' && refItem !== null)
+				{
+				   itemObj = this.convertItem(refItem, topItemId);
+				} else {
+				   itemObj = null;
+				   console.error("Unable to resolve question link to id '" + qId + "'");
+				}
 			} else if (item.type === 'answer') {
 				itemObj.body = item.a;
 			} else if (item.type === 'answer_question') {
 				itemObj.children = [];
-				itemObj.useParent = true;
 				for (var aq = 0; aq < item.questions.length; aq++)
 				{
 					itemObj.children.push(item.questions[aq]) ;
@@ -473,16 +520,32 @@ FAQ.RenderManager.prototype.convertItem = function(item, topItemId)
 				itemObj.body = bodyHTML;
 			}
 		} catch (e) {
-			console.log(e);
+			console.error(e);
 		}
 	}
 	return itemObj;
 };
 
-FAQ.followQuestionLink = function(id)
+FAQ.followQuestionLink = function(id, depth)
 {
-   // for now, only local links
-   return this.Items[id];
+   var item;
+   depth = depth || 0;
+   if (depth < 16)
+   {
+	  // for now, only local links
+      item = FAQ.Items[id];
+	  if (typeof item !== 'undefined')
+	  {
+	     if (item.type === 'question_link')
+		 {
+		     // since question_links do not have id's, we should never get here.
+		     item = FAQ.followQuestionLink(item.qid, depth+1);
+		 }
+	  }
+   } else {
+      console.error("Looks like there is a circular reference in the FAQ.");
+   }
+   return item;
 };
 
 // recursively traverse object tree starting at item

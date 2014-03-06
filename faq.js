@@ -197,6 +197,7 @@ Blockly.JavaScript['question_single'] = function(block) {
   var id = block.getFieldValue('id');
   var the_answer = FAQ.valueToCode(block, 'the_answer', Blockly.JavaScript.ORDER_ATOMIC);
   var title = block.getFieldValue('title');
+  var append = (block.getFieldValue('append') === "TRUE" ? true : false);
 
   FAQ.checkId(block, id);
   FAQ.checkNull(block, the_answer, "Answer");
@@ -204,10 +205,11 @@ Blockly.JavaScript['question_single'] = function(block) {
   
   var code = 
   "{" +
-     '"type": "question_single",' + '' +
-     '"id":' + JSON.stringify(id) + ',' + '' +
-     '"title":' + JSON.stringify(title) + ',' + '' +
-	 '"answer": ' + the_answer + ',' + '' +
+     '"type": "question_single",' + 
+     '"id":' + JSON.stringify(id) + ',' + 
+     '"title":' + JSON.stringify(title) + ',' + 
+     '"append":' + append + ',' + 
+	 '"answer": ' + the_answer + ',' + 
  	 '"eval" : ["answer"]'  + '' +
 	 '}';
 
@@ -289,6 +291,9 @@ Blockly.JavaScript['answer'] = function(block) {
   return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
+
+
+
 Blockly.JavaScript['answer_link'] = function(block) {
   var title = block.getFieldValue('title');
   var answer_url = block.getFieldValue('answer_url');
@@ -308,6 +313,30 @@ Blockly.JavaScript['answer_link'] = function(block) {
   var code = JSON.stringify(obj);
   return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
+
+Blockly.JavaScript['answer_iframe'] = function(block) {
+  var answer_url = block.getFieldValue('answer_url');
+  var frame_width = block.getFieldValue('frame_width');
+  var frame_height = block.getFieldValue('frame_width');
+
+  FAQ.checkNull(block, answer_url, "Link to page");
+  FAQ.checkNull(block, frame_width, "Frame width");
+  FAQ.checkNull(block, frame_height, "Frame height");
+  FAQ.checkDefault(block, answer_url, block.defaultValues['answer_url'], "Answer URL");
+  FAQ.checkForParent(block, "Embedded answer");
+
+  var answer_html = '<iframe src="' + answer_url + '" style="width:' + frame_width + ';height:' + frame_height + ';" frameborder="0"></iframe>';
+  var obj = 
+  {
+     type: "answer",
+	 a: answer_html
+  };
+  var code = JSON.stringify(obj);
+  return [code, Blockly.JavaScript.ORDER_ATOMIC];
+};
+
+
+
 
 Blockly.JavaScript['answer_question'] = function(block) {
   var the_questions = FAQ.statementToCode(block, 'question_list');
