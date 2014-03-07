@@ -515,7 +515,7 @@ FAQ.RenderManager.prototype.convertItem = function(item, topItemId)
 			} else if (item.type === 'answer_link') {
 			    var bodyHTML = '';
 				bodyHTML += '<a href="' + item.url + '">';
-				bodyHTML += this.htmlEscape(item.title) || '+';
+				bodyHTML += FAQ.htmlEscape(item.title) || '+';
 				bodyHTML += '</a>';
 				itemObj.body = bodyHTML;
 			}
